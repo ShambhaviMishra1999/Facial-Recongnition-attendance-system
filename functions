@@ -1,0 +1,76 @@
+# enroll a new face into db
+def enroll(embedding):
+name = input("New face detected, enter name\n")
+if name != "x":
+db[name] = embedding
+print("Enrolled %s into db!"%name)
+ 
+# search for a face in the db
+def identify_face(embedding):
+for name, emb in db.items():
+face_pair = {"faceA":emb, "faceB":embedding}
+cmp_r = requests.post(compare_api, data=json.dumps(face_pair))
+cmp_r = cmp_r.json()
+logger.debug(cmp_r)
+if cmp_r["same"]:
+return name
+ 
+return None
+ 
+# last attendance
+def mins_since_last_log():
+return ((datetime.datetime.now() - datetime.datetime.strptime(att_reg[-1]['time'], '%Y-%m-%d %H:%M:%S')).seconds/60)
+ 
+# mark attendance
+def mark_present(name):
+    if len(att_reg) == 0:
+    logger.info("Detected %s"%name)
+    stime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+    att = {'name':name,'time':stime}
+    att_reg.append(att)
+return
+ 
+if att_reg[-1]['name'] != name or mins_since_last_log() &amp;amp;amp;amp;amp;amp;amp;gt; 1:
+logger.info("Detected %s"%name)
+stime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+att = {'name':name,'time':stime}
+att_reg.append(att)
+&amp;amp;amp;amp;amp;amp;lt;pre&amp;amp;amp;amp;amp;amp;gt;# start processing
+while True:
+_, framex = cap.read()
+key = cv2.waitKey(50) &amp;amp;amp;amp;amp;amp;amp;amp; 0xFF
+ 
+frame = cv2.resize(framex, (args.w,args.h))
+ 
+ 
+r, imgbuf = cv2.imencode(".jpg", frame)
+image = {'pic':bytearray(imgbuf)}
+ 
+r = requests.post(face_api, files=image)
+result = r.json()
+ 
+if len(result) &amp;amp;amp;amp;amp;amp;amp;gt; 1:
+faces = result[:-1]
+diag = result[-1]['diagnostics']
+ 
+for face in faces:
+rect, embedding = [face[i] for i in ['faceRectangle','faceEmbeddings']]
+x,y,w,h = [rect[i] for i in ['left', 'top', 'width', 'height']]
+ 
+cv2.rectangle(frame, (x,y), (x+w,y+h), (0,255,0),1,8)
+name = identify_face(embedding)
+if not name is None:
+cv2.putText(frame, name, (x,y+22), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255))
+mark_present(name)
+break
+else:
+if args.enroll:
+enroll(embedding)
+ 
+cv2.putText(frame, diag['elapsedTime'], (0,20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255))
+ 
+cv2.imshow("frame", frame)
+if key == ord('q'):
+break;
+ 
+print("Exit")
