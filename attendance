@@ -1,0 +1,13 @@
+# attendance register
+att_reg = []
+try:
+att_reg = json.loads(open('att_log').read())
+except:
+pass
+ 
+# initialize database
+db = {}
+try:
+db = json.loads(open('att_db').read())
+except:
+pass
