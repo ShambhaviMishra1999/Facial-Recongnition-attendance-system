@@ -1,0 +1,13 @@
+# catch exit signal
+def signal_handler(signal, frame):
+if args.enroll:
+logger.info("Saving Attendance DB")
+with open('att_db','w') as att:
+att.write(json.dumps(db,2))
+ 
+logger.info("Saving attendance")
+with open('att_log','w') as att:
+att.write(json.dumps(att_reg))
+ 
+exit(0)
+signal.signal(signal.SIGINT, signal_handler)
