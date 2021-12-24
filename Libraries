@@ -1,0 +1,9 @@
+import cv2
+import requests
+import numpy as np
+import json
+import argparse
+import signal
+import logging
+import datetime, time
+face_api = "http://localhost:5000/inferImage?returnFaceId=true"
