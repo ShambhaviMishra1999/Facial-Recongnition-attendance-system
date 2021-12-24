@@ -1,0 +1,7 @@
+# parse arguments
+parser = argparse.ArgumentParser(description='Awesome Attendance System')
+parser.add_argument('--enroll', action='store_true', help='Enable enrollment of unknown faces')
+parser.add_argument('--src', action='store', default=0, nargs='?', help='Set video source; default is usb webcam')
+parser.add_argument('--w', action='store', default=320, nargs='?', help='Set video width')
+parser.add_argument('--h', action='store', default=240, nargs='?', help='Set video height')
+args = parser.parse_args()
